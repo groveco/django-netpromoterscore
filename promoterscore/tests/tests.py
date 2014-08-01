@@ -1,17 +1,13 @@
 import datetime
 from django.test import TestCase
 from promoterscore.models import PromoterScore
-from pypantry.tests.factories import CustomerFactory
+
 from django.core.urlresolvers import reverse
 from django.conf import settings
-from testsupport import create_socialapp
+
 
 
 class TestPromoterScore(TestCase):
-
-    def setUp(self):
-        create_socialapp()
-        self.customer = CustomerFactory()
 
     def do_req(self, login=True):
         if login:
