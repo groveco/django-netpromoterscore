@@ -10,23 +10,21 @@ class PromoterScoreApiView(viewsets.ModelViewSet):
         if request.user.is_authenticated():
             try:
                 score_raw = request.DATA.get('score', None)
-                # If customer does not enter score, set score to less than zero before request
+                # If user does not enter score, set score to less than zero before request
                 score = score_raw if score_raw > 0 else None
-                taken_at = datetime.datetime.now()
-                promoter_score = PromoterScore(customer=request.user, taken_at=taken_at, score=score)
+                created_at = datetime.datetime.now()
+                promoter_score = PromoterScore(user=request.user, created_at=created_at, score=score)
                 promoter_score.save()
                 return HttpResponse("Promoter score successfully taken.")
             except Exception:
                 return HttpResponse("Something went terribly wrong! So many dead bodies. There is blood everywhere.")
 
     def retrieve(self, request, *args, **kwargs):
-        ps_queryset = PromoterScore.objects.filter(customer=request.user)
+        ps_queryset = PromoterScore.objects.filter(user=request.user)
         # get the most recent promoter score or None
-        promoter_score = ps_queryset.order_by('taken_at').reverse()[0] if ps_queryset else None
+        self.promoter_score = ps_queryset.order_by('created_at').reverse()[0] if ps_queryset else None
 
-        #  If the user does not have a promoter score or (has one and has not taken a new one in 6 months)
-        if not promoter_score or (promoter_score and promoter_score.taken_at.replace(tzinfo=None)+datetime.timedelta(6*365/12) <
-                                  datetime.datetime.now()):
+        if not self.promoter_score or self.time_to_ask() < datetime.datetime.now():
             return HttpResponse(
                 content='<p>We love to hear from our friends! How likely are you to tell your friends about ePantry?</p> \
                     <ul> \
@@ -46,3 +44,6 @@ class PromoterScoreApiView(viewsets.ModelViewSet):
                 content_type='text/html')
         else:
             return HttpResponse("Conditions not met for promoter score")
+
+    def time_to_ask(self):
+        return self.promoter_score.created_at.replace(tzinfo=None)+datetime.timedelta(6*365/12)

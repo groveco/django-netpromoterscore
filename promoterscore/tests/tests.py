@@ -1,28 +1,26 @@
 import datetime
+from django.contrib.auth.models import User
 from django.test import TestCase
 from promoterscore.models import PromoterScore
-
 from django.core.urlresolvers import reverse
-from django.conf import settings
-
 
 
 class TestPromoterScore(TestCase):
-
-    def do_req(self, login=True):
-        if login:
-            self.client.login(username=self.customer.email, password=settings.CUSTOMER_PASSWORD)
-        resp = self.client.get(reverse('promoter-score'))
-        return resp
+    def setUp(self):
+        self.user = User.objects.create_user(username='jared', email='jared@hotmail.com', password='foobar123')
+        self.user.save()
+        self.client.login(username=self.user.username, password='foobar123')
 
     def test_promoter_score_returned_for_new_checked_out_customer(self):
-        response = self.do_req()
+        resp = self.client.get(reverse('promoter-score-get-survey'))
 
-        self.assertIn('<input name="score" type="radio" value="3"', response.content)
+        self.assertIn('<input name="score" type="radio" value="3"', resp.content)
 
-    def test_promoter_score_returned_for_customer_with_score_6_months_later(self):
-        ps = PromoterScore(customer=self.customer, taken_at=datetime.datetime.now()+datetime.timedelta(-7*365/12), score=None)
+    def test_promoter_score_returned_for_user_with_score_6_months_later(self):
+        ps = PromoterScore(user=self.user, score=None)
         ps.save()
-        response = self.do_req()
+        ps.created_at = ps.created_at+datetime.timedelta(-7*365/12)
+        ps.save()
+        resp = self.client.get(reverse('promoter-score-get-survey'))
 
-        self.assertIn('<input name="score" type="radio" value="3"', response.content)
+        self.assertIn('<input name="score" type="radio" value="3"', resp.content)

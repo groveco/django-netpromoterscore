@@ -11,8 +11,8 @@ class Migration(SchemaMigration):
         # Adding model 'PromoterScore'
         db.create_table(u'promoterscore_promoterscore', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('customer', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['pypantry.Customer'])),
-            ('taken_at', self.gf('django.db.models.fields.DateTimeField')()),
+            ('user', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['pypantry.Customer'])),
+            ('created_at', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
             ('score', self.gf('django.db.models.fields.IntegerField')(null=True, blank=True)),
         ))
         db.send_create_signal(u'promoterscore', ['PromoterScore'])
@@ -153,10 +153,10 @@ class Migration(SchemaMigration):
         },
         u'promoterscore.promoterscore': {
             'Meta': {'object_name': 'PromoterScore'},
-            'customer': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['pypantry.Customer']"}),
+            'created_at': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'score': ('django.db.models.fields.IntegerField', [], {'null': 'True', 'blank': 'True'}),
-            'taken_at': ('django.db.models.fields.DateTimeField', [], {})
+            'user': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['pypantry.Customer']"})
         },
         u'pypantry.address': {
             'Meta': {'object_name': 'Address'},
