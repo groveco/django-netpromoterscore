@@ -14,7 +14,7 @@ class TestPromoterScore(TestCase):
     def test_promoter_score_returned_for_new_checked_out_customer(self):
         resp = self.client.get(reverse('promoter-score-get-survey'))
 
-        self.assertIn('<input name="score" type="radio" value="3"', resp.content)
+        self.assertIn('true', resp.content)
 
     def test_promoter_score_returned_for_user_with_score_6_months_later(self):
         ps = PromoterScore(user=self.user, score=None)
@@ -23,4 +23,4 @@ class TestPromoterScore(TestCase):
         ps.save()
         resp = self.client.get(reverse('promoter-score-get-survey'))
 
-        self.assertIn('<input name="score" type="radio" value="3"', resp.content)
+        self.assertIn('true', resp.content)
