@@ -1,8 +1,20 @@
 import datetime
 from django.http import HttpResponse
+from django.template import Context, loader
+from django.utils.decorators import method_decorator
 from rest_framework import viewsets
 from rest_framework.authentication import SessionAuthentication
 from promoterscore.models import PromoterScore
+from promoterscore.app_settings import PROMOTERSCORE_PERMISSION_VIEW
+from promoterscore.utils import safe_admin_login_prompt, get_list_view_context
+
+
+def view_permission(f):
+    def wrap(request, *args, **kwargs):
+        if not PROMOTERSCORE_PERMISSION_VIEW(request.user):
+            return safe_admin_login_prompt(request)
+        return f(request, *args, **kwargs)
+    return wrap
 
 
 class PromoterScoreApiView(viewsets.ModelViewSet):
@@ -36,3 +48,16 @@ class SurveyApiView(viewsets.ViewSet):
 
     def time_to_ask(self):
         return self.promoter_score.created_at.replace(tzinfo=None)+datetime.timedelta(6*365/12)
+
+
+class NetPromoterScoreView(viewsets.ViewSet):
+    @method_decorator(view_permission)
+    def dispatch(self, *args, **kwargs):
+        return super(NetPromoterScoreView, self).dispatch(*args, **kwargs)
+
+    def get(self, request):
+        #context = self.context()
+        t = loader.get_template('netpromoterscore/base.html')
+#        c = Context({'content': 'This is some content.'})
+        c = Context({'nps_info_list': get_list_view_context()})
+        return HttpResponse(t.render(c))

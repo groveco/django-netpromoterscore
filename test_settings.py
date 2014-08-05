@@ -12,7 +12,7 @@ DATABASES = {
     }
 }
 
-ROOT_URLCONF = 'promoterscore.urls'
+ROOT_URLCONF = 'promoterscore.api_urls'
 
 TEMPLATE_CONTEXT_PROCESSORS = (
     "django.core.context_processors.static",
