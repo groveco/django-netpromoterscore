@@ -6,7 +6,7 @@ from rest_framework import viewsets
 from rest_framework.authentication import SessionAuthentication
 from promoterscore.models import PromoterScore
 from promoterscore.app_settings import PROMOTERSCORE_PERMISSION_VIEW
-from promoterscore.utils import safe_admin_login_prompt, get_list_view_context
+from promoterscore.utils import safe_admin_login_prompt
 
 
 def view_permission(f):
@@ -59,5 +59,5 @@ class NetPromoterScoreView(viewsets.ViewSet):
         #context = self.context()
         t = loader.get_template('netpromoterscore/base.html')
 #        c = Context({'content': 'This is some content.'})
-        c = Context({'nps_info_list': get_list_view_context()})
+        c = Context({'nps_info_list': PromoterScore.objects.get_list_view_context()})
         return HttpResponse(t.render(c))

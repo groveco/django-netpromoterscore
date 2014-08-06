@@ -1,11 +1,11 @@
 import datetime
 from django.contrib.auth.models import User
 from django.test import TestCase
-from promoterscore.models import PromoterScore
 from django.core.urlresolvers import reverse
+from promoterscore.models import PromoterScore
 
 
-class TestPromoterScore(TestCase):
+class TestPromoterScoreViews(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(username='jared', email='jared@hotmail.com', password='foobar123')
         self.user.save()

@@ -26,22 +26,22 @@
                     <thead>
                         <tr>
                             <th>Month</th>
-                            <th style="font-weight:bold">Net Promoter Score</th>
-                            <th>Total Promoters</th>
-                            <th>Total Detractors</th>
-                            <th>Total Passive</th>
-                            <th>Total None Score</th>
+                            <th title="NPS = % of Promoters - % of Detractors">Net Promoter Score</th>
+                            <th title="Users that answered with score of 9-10">Total Promoters</th>
+                            <th title="Users that answered with score of 1-6">Total Detractors</th>
+                            <th title="Users that answered with score of 7-8">Total Passive</th>
+                            <th title="Users that skipped the survey">Total Skipped</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for nps_info in nps_info_list %}
                         <tr>
-                            <th>{{ nps_info.month }}</th>
+                            <th>{{ nps_info.label }}</th>
                             <td>{{ nps_info.score }}</td>
                             <td>{{ nps_info.promoters }}</td>
                             <td>{{ nps_info.detractors }}</td>
                             <td>{{ nps_info.passive }}</td>
-                            <td>{{ nps_info.none }}</td>
+                            <td>{{ nps_info.skipped }}</td>
                         </tr>
                         {% endfor %}
                     </tbody>
