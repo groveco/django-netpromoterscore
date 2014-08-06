@@ -33,3 +33,9 @@ def _get_previous_month(date):
     if month == 0:
         return datetime.date(year=date.year-1, month=12, day=1)
     return datetime.date(year=date.year, month=month, day=1)
+
+def get_next_month(date):
+    month = date.month + 1
+    if month == 13:
+        return datetime.date(year=date.year+1, month=1, day=1)
+    return datetime.date(year=date.year, month=month, day=1)

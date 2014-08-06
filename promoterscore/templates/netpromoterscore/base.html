@@ -48,6 +48,13 @@
                 </table>
             </div>
         </div>
+    {% if rolling %}
+        <a href="{% url 'promoter-score-app'%}?rolling=0" type="button" class="btn btn-primary btn-lg">Switch to non-rolling scores</a>
+    {% else %}
+        <a href="{% url 'promoter-score-app'%}?rolling=1" type="button" class="btn btn-primary btn-lg">Switch to rolling scores</a>
+    {% endif %}
+    <br>
+<!--    <p>Rolling scores use the most recent promoter scores from users. Rolling scores use scores from the start of collecting up to that month.</p> -->
     </div>
 
     <div id="footer" style="padding-top:20px;">

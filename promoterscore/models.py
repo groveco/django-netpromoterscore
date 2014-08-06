@@ -1,42 +1,67 @@
 from django.db import models
 from django.conf import settings
-from utils import monthDict, get_many_previous_months
+from utils import monthDict, get_many_previous_months, get_next_month
 import datetime
 
 
 class PromoterScoreManager(models.Manager):
 
-    def get_list_view_context(self):
+    def get_list_view_context(self, rolling):
         now = datetime.date.today().replace(day=1)
 
         months = [now] + get_many_previous_months(now)
-        scores_by_month = [self._get_netpromoter(month) for month in months]
+        scores_by_month = [self._get_netpromoter(month, rolling) for month in months]
         return scores_by_month
 
-    def promoters(self, month):
-        return len(self.filter(created_at__month=month.month, created_at__year=month.year, score__in=[10, 9]))
+    def promoters(self, scores):
+        total_promoters = 0
+        for score in scores.values():
+            if 9 <= score <= 10:
+                total_promoters += 1
+        return total_promoters
 
-    def detractors(self, month):
-        return len(self.filter(created_at__month=month.month, created_at__year=month.year, score__in=[6, 5, 4, 3, 2, 1]))
+    def detractors(self, scores):
+        total_detractors = 0
+        for score in scores.values():
+            if 1 <= score <= 6:
+                total_detractors += 1
+        return total_detractors
 
-    def passive(self, month):
-        return len(self.filter(created_at__month=month.month, created_at__year=month.year, score__in=[8, 7]))
+    def passive(self, scores):
+        total_passive = 0
+        for score in scores.values():
+            if 7 <= score <= 8:
+                total_passive += 1
+        return total_passive
 
-    def skipped(self, month):
-        return len(self.filter(created_at__month=month.month, created_at__year=month.year, score=None))
+    def skipped(self, scores):
+        total_skipped = 0
+        for score in scores.values():
+            if score is None:
+                total_skipped += 1
+        return total_skipped
 
     def _rolling(self, month):
         most_recent_scores = {}
-        scores = self.filter(created_at__lt=datetime.date(year=month.year, month=month.month+1, day=1)).order_by('-created_at').values('user', 'score')
+        month = get_next_month(month)
+        scores = self.filter(created_at__lt=datetime.date(year=month.year, month=month.month, day=1)).order_by('-created_at').values('user', 'score')
         for score in scores:
             if not score['user'] in most_recent_scores:
                 most_recent_scores[score['user']] = score['score']
         return most_recent_scores
 
-    def _get_netpromoter(self, month, rolling=False):
-        label = monthDict[month.month] + ' ' + str(month.year)
-        return NetPromoterScore(label, self.promoters(month), self.detractors(month), self.passive(month), self.skipped(month))
+    def _one_month_only(self, month):
+        months_scores = {}
+        scores = self.filter(created_at__month=month.month, created_at__year=month.year).values('user', 'score')
+        for score in scores:
+            if not score['user'] in months_scores:
+                months_scores[score['user']] = score['score']
+        return months_scores
 
+    def _get_netpromoter(self, month, rolling):
+        label = monthDict[month.month] + ' ' + str(month.year)
+        scores = self._rolling(month) if rolling is True else self._one_month_only(month)
+        return NetPromoterScore(label, self.promoters(scores), self.detractors(scores), self.passive(scores), self.skipped(scores))
 
 
 class NetPromoterScore(object):

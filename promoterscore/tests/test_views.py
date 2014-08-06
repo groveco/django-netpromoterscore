@@ -5,7 +5,7 @@ from django.core.urlresolvers import reverse
 from promoterscore.models import PromoterScore
 
 
-class TestPromoterScoreViews(TestCase):
+class TestPromoterScoreApiViews(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(username='jared', email='jared@hotmail.com', password='foobar123')
         self.user.save()

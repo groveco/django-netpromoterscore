@@ -56,8 +56,7 @@ class NetPromoterScoreView(viewsets.ViewSet):
         return super(NetPromoterScoreView, self).dispatch(*args, **kwargs)
 
     def get(self, request):
-        #context = self.context()
+        rolling = True if request.GET.get('rolling') and int(request.GET.get('rolling')) else False
         t = loader.get_template('netpromoterscore/base.html')
-#        c = Context({'content': 'This is some content.'})
-        c = Context({'nps_info_list': PromoterScore.objects.get_list_view_context()})
+        c = Context({'rolling': rolling, 'nps_info_list': PromoterScore.objects.get_list_view_context(rolling)})
         return HttpResponse(t.render(c))
