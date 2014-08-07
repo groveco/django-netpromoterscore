@@ -1,7 +1,6 @@
 from django.conf.urls import patterns, url
-from promoterscore.views import PromoterScoreApiView, SurveyApiView
 
 urlpatterns = patterns('',
-                       url(r'survey/$', SurveyApiView.as_view({'get': 'retrieve'}), name='promoter-score-get-survey'),
-                       url(r'$', PromoterScoreApiView.as_view({'post': 'create'}), name='promoter-score'),
+                       url(r'survey/$', 'promoterscore.views.retrieve_survey', name='retrieve_survey'),
+                       url(r'create-promoter-score/$', 'promoterscore.views.create_promoter_score', name='create_promoter_score'),
 )

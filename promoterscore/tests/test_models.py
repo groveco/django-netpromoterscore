@@ -30,3 +30,11 @@ class TestPromoterScoreModels(TestCase):
         got = PromoterScore.objects._one_month_only(month=self.now)
         expected = {self.user1.pk: self.ps1.score}
         self.assertEqual(expected, got)
+
+    def test_get_netpromoter_with_rolling(self):
+        got = PromoterScore.objects._get_netpromoter(month=self.now, rolling=True)
+        self.assertEqual([1, 1], [got.promoters, got.passive])
+
+    def test_get_netpromoter_without_rolling(self):
+        got = PromoterScore.objects._get_netpromoter(month=self.now, rolling=False)
+        self.assertEqual([0, 1], [got.promoters, got.passive])

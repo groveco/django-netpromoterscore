@@ -12,7 +12,7 @@ class TestPromoterScoreApiViews(TestCase):
         self.client.login(username=self.user.username, password='foobar123')
 
     def test_promoter_score_returned_for_new_checked_out_customer(self):
-        resp = self.client.get(reverse('promoter-score-get-survey'))
+        resp = self.client.get(reverse('retrieve_survey'))
 
         self.assertIn('true', resp.content)
 
@@ -21,6 +21,8 @@ class TestPromoterScoreApiViews(TestCase):
         ps.save()
         ps.created_at = ps.created_at+datetime.timedelta(-7*365/12)
         ps.save()
-        resp = self.client.get(reverse('promoter-score-get-survey'))
+        resp = self.client.get(reverse('retrieve_survey'))
 
         self.assertIn('true', resp.content)
+
+#    def test_create_promoter_score(self):

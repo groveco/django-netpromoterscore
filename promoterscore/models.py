@@ -14,53 +14,39 @@ class PromoterScoreManager(models.Manager):
         return scores_by_month
 
     def promoters(self, scores):
-        total_promoters = 0
-        for score in scores.values():
-            if 9 <= score <= 10:
-                total_promoters += 1
-        return total_promoters
+        return self.segment(scores, lambda x: 9 <= x <= 10)
 
     def detractors(self, scores):
-        total_detractors = 0
-        for score in scores.values():
-            if 1 <= score <= 6:
-                total_detractors += 1
-        return total_detractors
+        return self.segment(scores, lambda x: 1 <= x <= 6)
 
     def passive(self, scores):
-        total_passive = 0
-        for score in scores.values():
-            if 7 <= score <= 8:
-                total_passive += 1
-        return total_passive
+        return self.segment(scores, lambda x: 7 <= x <= 8)
 
     def skipped(self, scores):
-        total_skipped = 0
-        for score in scores.values():
-            if score is None:
-                total_skipped += 1
-        return total_skipped
+        return self.segment(scores, lambda x: x is None)
+
+    def segment(self, scores, test):
+        return sum([test(score) for score in scores.values()])
 
     def _rolling(self, month):
-        most_recent_scores = {}
         month = get_next_month(month)
         scores = self.filter(created_at__lt=datetime.date(year=month.year, month=month.month, day=1)).order_by('-created_at').values('user', 'score')
+        return self.recent_scores(scores)
+
+    def _one_month_only(self, month):
+        scores = self.filter(created_at__month=month.month, created_at__year=month.year).values('user', 'score')
+        return self.recent_scores(scores)
+
+    def recent_scores(self, scores):
+        most_recent_scores = {}
         for score in scores:
             if not score['user'] in most_recent_scores:
                 most_recent_scores[score['user']] = score['score']
         return most_recent_scores
 
-    def _one_month_only(self, month):
-        months_scores = {}
-        scores = self.filter(created_at__month=month.month, created_at__year=month.year).values('user', 'score')
-        for score in scores:
-            if not score['user'] in months_scores:
-                months_scores[score['user']] = score['score']
-        return months_scores
-
     def _get_netpromoter(self, month, rolling):
         label = monthDict[month.month] + ' ' + str(month.year)
-        scores = self._rolling(month) if rolling is True else self._one_month_only(month)
+        scores = self._rolling(month) if rolling else self._one_month_only(month)
         return NetPromoterScore(label, self.promoters(scores), self.detractors(scores), self.passive(scores), self.skipped(scores))
 
 
