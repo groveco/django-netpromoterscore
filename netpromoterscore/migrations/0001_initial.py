@@ -9,18 +9,18 @@ class Migration(SchemaMigration):
 
     def forwards(self, orm):
         # Adding model 'PromoterScore'
-        db.create_table(u'promoterscore_promoterscore', (
+        db.create_table(u'netpromoterscore_promoterscore', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('user', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['pypantry.Customer'])),
             ('created_at', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
             ('score', self.gf('django.db.models.fields.IntegerField')(null=True, blank=True)),
         ))
-        db.send_create_signal(u'promoterscore', ['PromoterScore'])
+        db.send_create_signal(u'netpromoterscore', ['PromoterScore'])
 
 
     def backwards(self, orm):
         # Deleting model 'PromoterScore'
-        db.delete_table(u'promoterscore_promoterscore')
+        db.delete_table(u'netpromoterscore_promoterscore')
 
 
     models = {
@@ -66,6 +66,13 @@ class Migration(SchemaMigration):
             'name': ('django.db.models.fields.CharField', [], {'max_length': '256'}),
             'notes': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
             'price_list': ('marketing.models.ProductPriceField', [], {})
+        },
+        u'netpromoterscore.promoterscore': {
+            'Meta': {'object_name': 'PromoterScore'},
+            'created_at': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'score': ('django.db.models.fields.IntegerField', [], {'null': 'True', 'blank': 'True'}),
+            'user': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['pypantry.Customer']"})
         },
         u'product.brand': {
             'Meta': {'ordering': "('position',)", 'object_name': 'Brand'},
@@ -151,13 +158,6 @@ class Migration(SchemaMigration):
             'position': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
             'product': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['product.Product']"})
         },
-        u'promoterscore.promoterscore': {
-            'Meta': {'object_name': 'PromoterScore'},
-            'created_at': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'score': ('django.db.models.fields.IntegerField', [], {'null': 'True', 'blank': 'True'}),
-            'user': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['pypantry.Customer']"})
-        },
         u'pypantry.address': {
             'Meta': {'object_name': 'Address'},
             'addr1': ('django.db.models.fields.CharField', [], {'max_length': '128'}),
@@ -233,4 +233,4 @@ class Migration(SchemaMigration):
         }
     }
 
-    complete_apps = ['promoterscore']
+    complete_apps = ['netpromoterscore']

@@ -1,6 +1,6 @@
 import datetime
 from django.test import TestCase
-from promoterscore.utils import get_many_previous_months, get_next_month
+from netpromoterscore.utils import get_many_previous_months, get_next_month
 
 
 class TestUtils(TestCase):

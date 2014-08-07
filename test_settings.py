@@ -12,7 +12,7 @@ DATABASES = {
     }
 }
 
-ROOT_URLCONF = 'promoterscore.api_urls'
+ROOT_URLCONF = 'netpromoterscore.api_urls'
 
 TEMPLATE_CONTEXT_PROCESSORS = (
     "django.core.context_processors.static",
@@ -32,7 +32,7 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.admin',
-    'promoterscore'
+    'netpromoterscore'
 )
 
 AUTHENTICATION_BACKENDS = (

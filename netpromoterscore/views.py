@@ -3,9 +3,9 @@ import json
 import ast
 from django.http import HttpResponse
 from django.template import Context, loader
-from promoterscore.models import PromoterScore
-from promoterscore.app_settings import PROMOTERSCORE_PERMISSION_VIEW
-from promoterscore.utils import safe_admin_login_prompt
+from netpromoterscore.models import PromoterScore
+from netpromoterscore.app_settings import PROMOTERSCORE_PERMISSION_VIEW
+from netpromoterscore.utils import safe_admin_login_prompt
 
 
 def view_permission(f):

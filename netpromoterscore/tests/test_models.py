@@ -1,7 +1,7 @@
 import datetime
 from django.contrib.auth.models import User
 from django.test import TestCase
-from promoterscore.models import PromoterScore
+from netpromoterscore.models import PromoterScore
 
 
 class TestPromoterScoreModels(TestCase):

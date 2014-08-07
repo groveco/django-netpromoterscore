@@ -9,7 +9,7 @@ setup(
     author_email = "ab@epantry.com",
     url = "https://github.com/epantry/django-promoterscore",
     keywords = ["promoter score", "net promoter score", "django"],
-    install_requires = ['requests==2.3.0'],
+    install_requires = [],
     packages = find_packages(),
     include_package_data=True,
     )
