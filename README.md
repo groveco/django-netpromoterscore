@@ -1,0 +1,3 @@
+# Django Net Promoter Score #
+
+Django Net Promoter Score is designed to help you find out what your customers think of your application. The net promoter score metric is based on user feedback to one question, "On a scale from 1 to 10 how likely are you to recommend us to a friend or colleague?". You are able to jazz this question up to fit your projects needs, and use Django Net Promoter Score to keep track of user response and detect when it is time to ask a user the question again. Django Net Promoter Score also features an admin view that displays a breakdown of the net promoter score metric over a 12 month period.
