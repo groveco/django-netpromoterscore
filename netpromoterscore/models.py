@@ -65,7 +65,7 @@ class NetPromoterScore(object):
         if total > 0:
             promoter_percentage = float(self.promoters) / float(total)
             detractor_percentage = float(self.detractors) / float(total)
-            return round(promoter_percentage - detractor_percentage * 100, 2)
+            return round((promoter_percentage - detractor_percentage) * 100, 2)
         else:
             return 'Not enough information.'
 

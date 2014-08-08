@@ -1,7 +1,7 @@
 import datetime
 from django.contrib.auth.models import User
 from django.test import TestCase
-from netpromoterscore.models import PromoterScore
+from netpromoterscore.models import PromoterScore, NetPromoterScore
 
 
 class TestPromoterScoreModels(TestCase):
@@ -38,3 +38,14 @@ class TestPromoterScoreModels(TestCase):
     def test_get_netpromoter_without_rolling(self):
         got = PromoterScore.objects._get_netpromoter(month=self.now, rolling=False)
         self.assertEqual([0, 1], [got.promoters, got.passive])
+
+class TestNetPromoterScoreModels(TestCase):
+
+    def test_net_promoter_score_calculation(self):
+        self.label = 'January 2014'
+        self.promoters = 50
+        self.detractors = 25
+        self.passive = 25
+        self.skipped = 0
+        nps = NetPromoterScore(self.label, self.promoters, self.detractors, self.passive, self.skipped)
+        self.assertEqual(float(25.0), nps.score)
