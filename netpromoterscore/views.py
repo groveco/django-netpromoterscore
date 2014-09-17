@@ -26,7 +26,11 @@ def create_promoter_score(request):
     score = _get_score(request)
     promoter_score = PromoterScore(user=request.user, score=score)
     promoter_score.save()
-    return HttpResponse(status=201)
+    return HttpResponse(
+        json.dumps({'score_id': str(promoter_score.pk)}),
+        content_type='application/json',
+        status=201
+    )
 
 def _get_score(request):
     score_raw = ast.literal_eval(request.body)['score']
