@@ -1,7 +1,7 @@
 import datetime
 import json
 import ast
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseForbidden
 from django.template import Context, loader
 from netpromoterscore.models import PromoterScore
 from netpromoterscore.app_settings import PROMOTERSCORE_PERMISSION_VIEW
@@ -31,6 +31,17 @@ def create_promoter_score(request):
         content_type='application/json',
         status=201
     )
+
+def update_score_reason(request):
+    if request.method == 'POST' and request.user.is_authenticated():
+        score_id = request.POST.get('score_id')
+        reason = request.POST.get('reason')
+        score = PromoterScore.objects.get(pk=score_id)
+        score.reason = reason
+        score.save()
+        return HttpResponse('')
+    else:
+        return HttpResponseForbidden()
 
 def _get_score(request):
     score_raw = ast.literal_eval(request.body)['score']
