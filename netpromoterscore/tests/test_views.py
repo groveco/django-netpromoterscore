@@ -1,5 +1,5 @@
 import datetime
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.core.urlresolvers import reverse
 from netpromoterscore.models import PromoterScore
@@ -7,7 +7,8 @@ from netpromoterscore.models import PromoterScore
 
 class TestPromoterScoreApiViews(TestCase):
     def setUp(self):
-        self.user = User.objects.create_user(username='jared', email='jared@hotmail.com', password='foobar123')
+        self.user_model = get_user_model()
+        self.user = self.user_model.objects.create_user(username='jared', email='jared@hotmail.com', password='foobar123')
         self.user.save()
         self.client.login(username=self.user.username, password='foobar123')
 
@@ -25,4 +26,14 @@ class TestPromoterScoreApiViews(TestCase):
 
         self.assertIn('true', resp.content)
 
-#    def test_create_promoter_score(self):
+    def test_update_score_reason(self):
+        reason = 'Awesome!'
+
+        score = PromoterScore(user=self.user, score=10)
+        score.save()
+
+        self.client.post(reverse('update_score_reason'), {'score_id': score.pk, 'reason': reason})
+
+        score = PromoterScore.objects.get(pk=score.pk)
+        self.assertEqual(score.reason, reason)
+
