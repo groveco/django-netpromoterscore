@@ -1,84 +1,56 @@
 import datetime
 import json
-import ast
-from django.http import HttpResponse, HttpResponseForbidden
-from django.template import Context, loader
-from netpromoterscore.models import PromoterScore
-from netpromoterscore.app_settings import PROMOTERSCORE_PERMISSION_VIEW
-from netpromoterscore.utils import safe_admin_login_prompt
+from django.http import HttpResponse
+from django.shortcuts import render, get_object_or_404
+from django.views.generic.base import View
+from .models import PromoterScore
+from .forms import PromoterScoreForm
 
 
-def view_permission(f):
-    def wrap(request, *args, **kwargs):
-        if not PROMOTERSCORE_PERMISSION_VIEW(request.user):
-            return safe_admin_login_prompt(request)
-        return f(request, *args, **kwargs)
-    return wrap
+class SurveyView(View):
+
+    def get(self, request):
+        data = {'survey_is_needed': True if self._user_needs_survey(request.user) else False}
+        return HttpResponse(json.dumps(data), content_type="application/json")
+
+    def post(self, request):
+        promoter_score, errors = self._get_promoter_score(request)
+        if promoter_score:
+            data, status = {'id': promoter_score.pk}, 200
+        else:
+            data, status = errors, 400
+        return HttpResponse(json.dumps(data), content_type='application/json', status=status)
+
+    def _get_promoter_score(self, request):
+        data = json.loads(request.body)
+        data['user'] = request.user.id
+        pk = data.pop('id', None)
+
+        if pk:
+            instance = get_object_or_404(PromoterScore, pk=pk)
+        else:
+            instance = None
+
+        form = PromoterScoreForm(data, instance=instance)
+
+        return form.save() if form.is_valid() else None, form.errors
+
+    def _user_needs_survey(self, user):
+        promoter_score = self._get_most_recent_promoter_score(user)
+        if promoter_score:
+            print promoter_score.created_at, self._time_to_ask(promoter_score), datetime.datetime.now()
+        return not promoter_score or self._time_to_ask(promoter_score) < datetime.datetime.now()
+
+    def _get_most_recent_promoter_score(self, user):
+        return PromoterScore.objects.filter(user=user).order_by('-created_at').first()
+
+    def _time_to_ask(self, promoter_score):
+        return promoter_score.created_at.replace(tzinfo=None) + datetime.timedelta(6*365/12)
 
 
-"""
-Creates a Promoter Score for a user
-Returns 201 on successful creation
-"""
+class NetPromoterScoreView(View):
 
-def create_promoter_score(request):
-    # TODO add criteria for good request
-    score = _get_score(request)
-    promoter_score = PromoterScore(user=request.user, score=score)
-    promoter_score.save()
-    return HttpResponse(
-        json.dumps({'score_id': str(promoter_score.pk)}),
-        content_type='application/json',
-        status=201
-    )
-
-def update_score_reason(request):
-    if request.method == 'POST' and request.user.is_authenticated():
-        score_id = request.POST.get('score_id')
-        reason = request.POST.get('reason')
-        score = PromoterScore.objects.get(pk=score_id)
-        score.reason = reason
-        score.save()
-        return HttpResponse('')
-    else:
-        return HttpResponseForbidden()
-
-def _get_score(request):
-    score_raw = ast.literal_eval(request.body)['score']
-    return score_raw if score_raw > 0 else None
-
-"""
-Check to see if customer should get surveyed
-Returns true if customer should get surveyed and false if not
-"""
-
-def retrieve_survey(request):
-    promoter_score = _get_most_recent_promoter_score(request)
-    if _user_needs_survey(promoter_score):
-        return HttpResponse(json.dumps({'get_survey': 'true'}), content_type="application/json")
-    else:
-        return HttpResponse(json.dumps({'get_survey': 'false'}), content_type="application/json")
-
-def _get_most_recent_promoter_score(request):
-    ps_queryset = PromoterScore.objects.filter(user=request.user)
-    return ps_queryset.order_by('created_at').reverse()[0] if ps_queryset else None
-
-def _user_needs_survey(promoter_score):
-    return not promoter_score or _time_to_ask(promoter_score) < datetime.datetime.now()
-
-
-def _time_to_ask(promoter_score):
-    return promoter_score.created_at.replace(tzinfo=None) + datetime.timedelta(6*365/12)
-
-
-"""
-Gets the net promoter scores for the net promoter score admin pages
-Renders pages on success
-"""
-
-@view_permission
-def get_net_promoter_score(request):
-    rolling = True if request.GET.get('rolling') and int(request.GET.get('rolling')) else False
-    t = loader.get_template('netpromoterscore/base.html')
-    c = Context({'rolling': rolling, 'nps_info_list': PromoterScore.objects.get_list_view_context(rolling)})
-    return HttpResponse(t.render(c))
+    def get(self, request):
+        rolling = True if request.GET.get('rolling') and int(request.GET.get('rolling')) else False
+        context = {'rolling': rolling, 'nps_info_list': PromoterScore.objects.get_list_view_context(rolling)}
+        return render(request, 'netpromoterscore/base.html', context)
