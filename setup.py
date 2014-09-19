@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 setup(
     name = "django-netpromoterscore",
-    version = '0.0.1',
+    version = '0.0.2',
     description = "Model, Tests, and API for collecting promoter score from users.",
     author = "Austin Brennan",
     author_email = "ab@epantry.com",
