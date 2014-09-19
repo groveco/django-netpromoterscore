@@ -1,20 +1,21 @@
 import datetime
 import json
-from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.core.urlresolvers import reverse
 from netpromoterscore.models import PromoterScore
+from netpromoterscore.views import NetPromoterScoreView
+from . import TestMixin
 
 
-class TestPromoterScoreApiViews(TestCase):
+class TestPromoterScoreApiViews(TestCase, TestMixin):
+
     def setUp(self):
-        self.user_model = get_user_model()
-        self.user = self.user_model.objects.create_user(
-            username='jared', email='jared@hotmail.com', password='foobar123'
-        )
-        self.user.save()
+        self.create_users()
         self.client.login(username=self.user.username, password='foobar123')
-        PromoterScore.objects.all().delete()
+
+    def tearDown(self):
+        self.delete_promoter_scores()
+        self.delete_users()
 
     def test_promoter_score_returned_for_new_checked_out_customer(self):
         response = self.client.get(reverse('survey'))
@@ -58,3 +59,26 @@ class TestPromoterScoreApiViews(TestCase):
         promoter_score = PromoterScore.objects.get(pk=promoter_score.pk)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(promoter_score.reason, reason)
+
+
+class TestNetPromoterScoreView(TestCase, TestMixin):
+
+    def setUp(self):
+        self.create_users()
+        self.create_promoter_scores()
+
+        self.view_instance = NetPromoterScoreView()
+
+    def tearDown(self):
+        self.delete_promoter_scores()
+        self.delete_users()
+
+    def test_get_netpromoter_with_rolling(self):
+        expected = [1, 1]
+        got = self.view_instance.get_netpromoter(month=self.now, rolling=True)
+        self.assertEqual(expected, [got['promoters'], got['passive']])
+
+    def test_get_netpromoter_without_rolling(self):
+        expected = [0, 1]
+        got = self.view_instance.get_netpromoter(month=self.now, rolling=False)
+        self.assertEqual(expected, [got['promoters'], got['passive']])
