@@ -2,17 +2,21 @@ import datetime
 import json
 from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404
+from django.utils.decorators import method_decorator
 from django.views.generic.base import View
 from .models import PromoterScore
 from .forms import PromoterScoreForm
+from .decorators import login_required, admin_required
 
 
 class SurveyView(View):
 
+    @method_decorator(login_required)
     def get(self, request):
         data = {'survey_is_needed': True if self._user_needs_survey(request.user) else False}
         return HttpResponse(json.dumps(data), content_type="application/json")
 
+    @method_decorator(login_required)
     def post(self, request):
         promoter_score, errors = self._get_promoter_score(request)
         if promoter_score:
@@ -50,6 +54,7 @@ class SurveyView(View):
 
 class NetPromoterScoreView(View):
 
+    @method_decorator(admin_required)
     def get(self, request):
         rolling = True if request.GET.get('rolling') and int(request.GET.get('rolling')) else False
         context = {'rolling': rolling, 'nps_info_list': PromoterScore.objects.get_list_view_context(rolling)}
