@@ -1,28 +1,13 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Net Promoter Score</title>
-    <link href="//cdnjs.cloudflare.com/ajax/libs/codemirror/3.19.0/codemirror.min.css" rel="stylesheet">
+{% extends 'admin/base_site.html'%}
+
+{% block title %} Promoter Score {% endblock %}
+
+{% block content%}
     <link href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet">
-    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
-</head>
-<body>
-    <div id="wrap" style="overflow: hidden;"> <!-- overflow hidden is for schema navigator -->
-        <div class="navbar navbar-default navbar-static-top" role="navigation">
-            <div class="container">
-                <div class="navbar-header">
-                    <a class="navbar-brand">Net Promoter Score</a>
-                </div>
-            </div>
-        </div>
-    </div>
     <div class="container">
         <div class="starter-template">
             <div class="table-responsive">
-                <table class="table table-bordered table-striped">
+                <table class="table">
                     <thead>
                         <tr>
                             <th>Month</th>
@@ -49,9 +34,9 @@
             </div>
         </div>
     {% if rolling %}
-        <a href="{% url 'net-promoter-score'%}?rolling=0" type="button" class="btn btn-primary btn-lg">Switch to non-rolling scores</a>
+        <a href="{% url 'net-promoter-score'%}?rolling=0" type="button" class="btn btn-primary btn-lg" style="color: #fff">Switch to non-rolling scores</a>
     {% else %}
-        <a href="{% url 'net-promoter-score'%}?rolling=1" type="button" class="btn btn-primary btn-lg">Switch to rolling scores</a>
+        <a href="{% url 'net-promoter-score'%}?rolling=1" type="button" class="btn btn-primary btn-lg" style="color: #fff">Switch to rolling scores</a>
     {% endif %}
     <br>
 <!--    <p>Rolling scores use the most recent promoter scores from users. Rolling scores use scores from the start of collecting up to that month.</p> -->
@@ -60,10 +45,9 @@
     <div id="footer" style="padding-top:20px;">
         <div class="container">
             <p class="text-muted">
-                Powered by <a href="https://www.github.com/epantry/django-promoterscore/">django-netpromoterscore</a> from
+                Powered by <a href="https://www.github.com/epantry/django-netpromoterscore/">django-netpromoterscore</a> from
                 <a href="https://www.epantry.com">ePantry</a>.
             </p>
         </div>
     </div>
-</body>
-</html>
+{% endblock %}

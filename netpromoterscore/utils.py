@@ -39,3 +39,12 @@ def get_next_month(date):
     if month == 13:
         return datetime.date(year=date.year+1, month=1, day=1)
     return datetime.date(year=date.year, month=month, day=1)
+
+def count_score(promoters, detractors, passive, skipped=None):
+        total = promoters + detractors + passive
+        if total > 0:
+            promoter_percentage = float(promoters) / float(total)
+            detractor_percentage = float(detractors) / float(total)
+            return round((promoter_percentage - detractor_percentage) * 100, 2)
+        else:
+            return 'Not enough information'
