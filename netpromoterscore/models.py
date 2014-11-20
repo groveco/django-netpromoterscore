@@ -8,20 +8,12 @@ from utils import get_next_month
 class PromoterScoreManager(models.Manager):
     def rolling(self, month):
         month = get_next_month(month)
-        scores = self.filter(created_at__lt=datetime.date(year=month.year, month=month.month, day=1))\
-        .order_by('-created_at').values('user', 'score')
-        return self._recent_scores(scores)
+        scores = self.filter(created_at__lt=month).order_by('-created_at').values_list('user', 'score')
+        return dict(scores)
 
     def one_month_only(self, month):
-        scores = self.filter(created_at__month=month.month, created_at__year=month.year).values('user', 'score')
-        return self._recent_scores(scores)
-
-    def _recent_scores(self, scores):
-        most_recent_scores = {}
-        for score in scores:
-            if not score['user'] in most_recent_scores:
-                most_recent_scores[score['user']] = score['score']
-        return most_recent_scores
+        scores = self.filter(created_at__month=month.month, created_at__year=month.year).values_list('user', 'score')
+        return dict(scores)
 
 
 class PromoterScore(models.Model):
@@ -31,8 +23,3 @@ class PromoterScore(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     objects = PromoterScoreManager()
-
-    def save(self, *args, **kwargs):
-        if not self.pk:
-            self.score = self.score if 1 <= self.score <= 10 else None
-        super(PromoterScore, self).save(*args, **kwargs)
