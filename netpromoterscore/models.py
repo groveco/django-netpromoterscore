@@ -1,4 +1,5 @@
 import datetime
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from django.conf import settings
 from utils import get_next_month
@@ -8,7 +9,7 @@ class PromoterScoreManager(models.Manager):
     def rolling(self, month):
         month = get_next_month(month)
         scores = self.filter(created_at__lt=datetime.date(year=month.year, month=month.month, day=1))\
-            .order_by('-created_at').values('user', 'score')
+        .order_by('-created_at').values('user', 'score')
         return self._recent_scores(scores)
 
     def one_month_only(self, month):
@@ -25,9 +26,9 @@ class PromoterScoreManager(models.Manager):
 
 class PromoterScore(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL)
-    created_at = models.DateTimeField(auto_now_add=True)
-    score = models.IntegerField(null=True, blank=True)
+    score = models.IntegerField(default=0, validators=[MinValueValidator(0), MaxValueValidator(10)])
     reason = models.TextField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     objects = PromoterScoreManager()
 
