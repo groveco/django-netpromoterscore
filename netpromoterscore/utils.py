@@ -24,11 +24,11 @@ def safe_admin_login_prompt(request):
 def get_many_previous_months(month, total_months=12):
     months = []
     for x in xrange(total_months):
-        month = _get_previous_month(month)
+        month = get_previous_month(month)
         months.append(month)
     return months
 
-def _get_previous_month(date):
+def get_previous_month(date):
     month = date.month - 1
     if month == 0:
         return datetime.date(year=date.year-1, month=12, day=1)

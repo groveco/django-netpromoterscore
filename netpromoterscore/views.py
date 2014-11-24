@@ -1,6 +1,6 @@
 import datetime
 import json
-from django.http import HttpResponse
+from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404
 from django.utils.decorators import method_decorator
 from django.views.generic.base import View
@@ -12,8 +12,8 @@ from .utils import get_many_previous_months, monthDict, count_score
 
 CHECKS = {
     'promoters': lambda x: 9 <= x <= 10,
-    'detractors': lambda x: 1 <= x <= 6,
     'passive': lambda x: 7 <= x <= 8,
+    'detractors': lambda x: 1 <= x <= 6,
     'skipped': lambda x: x is None
 }
 
@@ -22,8 +22,7 @@ class SurveyView(View):
 
     @method_decorator(login_required)
     def get(self, request):
-        data = {'survey_is_needed': True if self.user_needs_survey(request.user) else False}
-        return HttpResponse(json.dumps(data), content_type="application/json")
+        return JsonResponse({'survey_is_needed': self.user_needs_survey(request.user)})
 
     @method_decorator(login_required)
     def post(self, request):
@@ -32,7 +31,7 @@ class SurveyView(View):
             data, status = {'id': promoter_score.pk}, 200
         else:
             data, status = errors, 400
-        return HttpResponse(json.dumps(data), content_type='application/json', status=status)
+        return JsonResponse(data, status=status)
 
     def get_promoter_score(self, request):
         data = json.loads(request.body)
@@ -50,8 +49,6 @@ class SurveyView(View):
 
     def user_needs_survey(self, user):
         promoter_score = self.get_most_recent_promoter_score(user)
-        if promoter_score:
-            print promoter_score.created_at, self.time_to_ask(promoter_score), datetime.datetime.now()
         return not promoter_score or self.time_to_ask(promoter_score) < datetime.datetime.now()
 
     def get_most_recent_promoter_score(self, user):
@@ -86,13 +83,13 @@ class NetPromoterScoreView(View):
         else:
             scores = PromoterScore.objects.one_month_only(month)
 
-        result = {}
-        for name, check in CHECKS.items():
-            result[name] = self.sum(scores, check)
+        result = dict((k, 0) for k in CHECKS.iterkeys())
+        for val in scores.values():
+            for name, check in CHECKS.items():
+                if check(val):
+                    result[name] += 1
+                    break
         result['score'] = count_score(**result)
         result['label'] = label
 
         return result
-
-    def sum(self, scores, check):
-        return sum([1 for score in scores.values() if check(score)])
