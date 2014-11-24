@@ -14,7 +14,7 @@ CHECKS = {
     'promoters': lambda x: 9 <= x <= 10,
     'passive': lambda x: 7 <= x <= 8,
     'detractors': lambda x: 1 <= x <= 6,
-    'skipped': lambda x: x < 1
+    'skipped': lambda x: x is None
 }
 
 
