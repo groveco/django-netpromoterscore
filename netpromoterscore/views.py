@@ -49,8 +49,6 @@ class SurveyView(View):
 
     def user_needs_survey(self, user):
         promoter_score = self.get_most_recent_promoter_score(user)
-        if promoter_score:
-            print promoter_score.created_at, self.time_to_ask(promoter_score), datetime.datetime.now()
         return not promoter_score or self.time_to_ask(promoter_score) < datetime.datetime.now()
 
     def get_most_recent_promoter_score(self, user):
