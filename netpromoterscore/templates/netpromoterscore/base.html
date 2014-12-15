@@ -1,50 +1,44 @@
-{% extends 'admin/base_site.html'%}
+{% extends 'admin/base_site.html' %}
 
 {% block title %} Promoter Score {% endblock %}
 
-{% block content%}
-    <div class="container">
-        <div class="starter-template">
-            <div class="table-responsive">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Month</th>
-                            <th title="NPS = % of Promoters - % of Detractors">Net Promoter Score</th>
-                            <th title="Users that answered with score of 9-10">Total Promoters</th>
-                            <th title="Users that answered with score of 1-6">Total Detractors</th>
-                            <th title="Users that answered with score of 7-8">Total Passive</th>
-                            <th title="Users that skipped the survey">Total Skipped</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for period, score in scores %}
-                        <tr>
-                            <th>{{ period|date:"M j Y" }}</th>
-                            <td>{{ score.score }}</td>
-                            <td>{{ score.promoters }}</td>
-                            <td>{{ score.detractors }}</td>
-                            <td>{{ score.passive }}</td>
-                            <td>{{ score.skipped }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+{% block content %}
+    <form id="changelist-form" action="" method="post" novalidate="">
+
+        <div class="results">
+            <table id="result_list" style="width: 100%">
+                <thead>
+                <tr>
+                    <th>Month</th>
+                    <th title="NPS = % of Promoters - % of Detractors">Net Promoter Score</th>
+                    <th title="Users that answered with score of 9-10">Total Promoters</th>
+                    <th title="Users that answered with score of 1-6">Total Detractors</th>
+                    <th title="Users that answered with score of 7-8">Total Passive</th>
+                    <th title="Users that skipped the survey">Total Skipped</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for period, score in scores %}
+                    <tr class="{% cycle 'row1' 'row2' %}">
+                        <th>{{ period|date:"M j Y" }}</th>
+                        <td>{{ score.score }}</td>
+                        <td>{{ score.promoters }}</td>
+                        <td>{{ score.detractors }}</td>
+                        <td>{{ score.passive }}</td>
+                        <td>{{ score.skipped }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
         </div>
-    {% if rolling %}
-        <a href="{% url 'net-promoter-score'%}?rolling=0" type="button" class="btn btn-primary btn-lg" style="color: #fff">Switch to non-rolling scores</a>
-    {% else %}
-        <a href="{% url 'net-promoter-score'%}?rolling=1" type="button" class="btn btn-primary btn-lg" style="color: #fff">Switch to rolling scores</a>
-    {% endif %}
-    <br>
-<!--    <p>Rolling scores use the most recent promoter scores from users. Rolling scores use scores from the start of collecting up to that month.</p> -->
-    </div>
+
+    </form>
 
     <div id="footer" style="padding-top:20px;">
         <div class="container">
             <p class="text-muted">
-                Powered by <a href="https://www.github.com/epantry/django-netpromoterscore/">django-netpromoterscore</a> from
+                Powered by <a href="https://www.github.com/epantry/django-netpromoterscore/">django-netpromoterscore</a>
+                from
                 <a href="https://www.epantry.com">ePantry</a>.
             </p>
         </div>
