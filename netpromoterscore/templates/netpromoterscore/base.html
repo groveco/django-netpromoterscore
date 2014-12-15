@@ -19,14 +19,14 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for nps_info in nps_info_list %}
+                        {% for period, score in scores %}
                         <tr>
-                            <th>{{ nps_info.label }}</th>
-                            <td>{{ nps_info.score }}</td>
-                            <td>{{ nps_info.promoters }}</td>
-                            <td>{{ nps_info.detractors }}</td>
-                            <td>{{ nps_info.passive }}</td>
-                            <td>{{ nps_info.skipped }}</td>
+                            <th>{{ period|date:"M j Y" }}</th>
+                            <td>{{ score.score }}</td>
+                            <td>{{ score.promoters }}</td>
+                            <td>{{ score.detractors }}</td>
+                            <td>{{ score.passive }}</td>
+                            <td>{{ score.skipped }}</td>
                         </tr>
                         {% endfor %}
                     </tbody>
