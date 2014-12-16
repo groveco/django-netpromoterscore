@@ -1,38 +1,60 @@
-{% extends 'admin/base_site.html' %}
+{% extends 'admin/change_list.html' %}
 
 {% block title %} Promoter Score {% endblock %}
-
+{% block breadcrumbs %}
+    <div class="breadcrumbs">
+        <a href="{% url 'admin:index' %}">Home</a>
+    </div>
+{% endblock %}
 {% block content %}
-    <form id="changelist-form" action="" method="post" novalidate="">
+    <h1>Net Promoter Score</h1>
+    <div id="content-main">
+        <div class="module filtered" id="changelist">
+            <form id="changelist-form" action="" method="post" novalidate="">
+                <div class="results">
+                    <table id="result_list" style="width: 100%">
+                        <thead>
+                        <tr>
+                            <th>Month</th>
+                            <th title="NPS = % of Promoters - % of Detractors">Net Promoter Score</th>
+                            <th title="Users that answered with score of 9-10">Total Promoters</th>
+                            <th title="Users that answered with score of 1-6">Total Detractors</th>
+                            <th title="Users that answered with score of 7-8">Total Passive</th>
+                            <th title="Users that skipped the survey">Total Skipped</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for period, score in scores %}
+                            <tr class="{% cycle 'row1' 'row2' %}">
+                                <th>{{ period|date:"M j Y" }}</th>
+                                <td>{{ score.score }}</td>
+                                <td>{{ score.promoters }}</td>
+                                <td>{{ score.detractors }}</td>
+                                <td>{{ score.passive }}</td>
+                                <td>{{ score.skipped }}</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
 
-        <div class="results">
-            <table id="result_list" style="width: 100%">
-                <thead>
-                <tr>
-                    <th>Month</th>
-                    <th title="NPS = % of Promoters - % of Detractors">Net Promoter Score</th>
-                    <th title="Users that answered with score of 9-10">Total Promoters</th>
-                    <th title="Users that answered with score of 1-6">Total Detractors</th>
-                    <th title="Users that answered with score of 7-8">Total Passive</th>
-                    <th title="Users that skipped the survey">Total Skipped</th>
-                </tr>
-                </thead>
-                <tbody>
-                {% for period, score in scores %}
-                    <tr class="{% cycle 'row1' 'row2' %}">
-                        <th>{{ period|date:"M j Y" }}</th>
-                        <td>{{ score.score }}</td>
-                        <td>{{ score.promoters }}</td>
-                        <td>{{ score.detractors }}</td>
-                        <td>{{ score.passive }}</td>
-                        <td>{{ score.skipped }}</td>
-                    </tr>
+            </form>
+
+            <div id="changelist-filter">
+                <h2>Options</h2>
+                {% for option in options %}
+                    <h3>{{ option.title }}</h3>
+                    <ul>
+                        {% for choice in option.get_choices %}
+                            <li {% if choice.selected %} class="selected"{% endif %}>
+                                <a href="{{ choice.query_string }}">{{ choice.display }}</a>
+                            </li>
+                        {% endfor %}
+                    </ul>
                 {% endfor %}
-                </tbody>
-            </table>
+            </div>
         </div>
-
-    </form>
+    </div>
 
     <div id="footer" style="padding-top:20px;">
         <div class="container">

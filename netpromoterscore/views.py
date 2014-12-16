@@ -9,6 +9,7 @@ from django.views.generic.base import View
 from .models import PromoterScore
 from .forms import PromoterScoreForm
 from .decorators import login_required
+from .options import PeriodOption, RollingOption
 from .utils import count_score, get_range_name_by_score
 
 
@@ -53,6 +54,7 @@ class SurveyView(View):
 
 
 class NetPromoterScoreView(View):
+    options = [PeriodOption, RollingOption]
 
     @method_decorator(staff_member_required)
     def get(self, request):
@@ -60,8 +62,8 @@ class NetPromoterScoreView(View):
         return render(request, 'netpromoterscore/base.html', context)
 
     def get_context_data(self, request):
-        rolling = True if request.GET.get('rolling') and int(request.GET.get('rolling')) else False
-        period = request.GET.get('period', 'month')
+        rolling = RollingOption(request.GET).chosen_value == 'yes'
+        period = PeriodOption(request.GET).chosen_value
         qs = PromoterScore.objects.group_by_period(period, rolling=rolling)
         scores = defaultdict(dict)
         for item in qs:
@@ -71,4 +73,12 @@ class NetPromoterScoreView(View):
         sort_scores = sorted(scores.iteritems(), key=lambda key_value: key_value[0], reverse=True)
         for _, sc in sort_scores:
             sc['score'] = count_score(sc)
-        return {'rolling': rolling, 'scores': sort_scores}
+        return {
+            'rolling': rolling,
+            'scores': sort_scores,
+            'options': self.get_options()
+        }
+
+    def get_options(self):
+        for option in self.options:
+            yield option(self.request.GET)
