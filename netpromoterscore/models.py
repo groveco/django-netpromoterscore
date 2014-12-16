@@ -6,9 +6,9 @@ from django.db.models import Count
 
 class PromoterScoreManager(models.Manager):
 
-    def group_by_period(self, period):
+    def group_by_period(self, period, rolling=False):
         select = {'period': "date_trunc('%s', created_at)" % period}
-        return self.extra(select=select, order_by=['score', 'period']).values('score', 'period').annotate(count=Count('score'))
+        return self.extra(select=select, order_by=['score', 'period']).values('score', 'period').annotate(count=Count('score', distinct=rolling))
 
 
 class PromoterScore(models.Model):

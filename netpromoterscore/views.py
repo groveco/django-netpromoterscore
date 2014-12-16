@@ -62,7 +62,7 @@ class NetPromoterScoreView(View):
     def get_context_data(self, request):
         rolling = True if request.GET.get('rolling') and int(request.GET.get('rolling')) else False
         period = request.GET.get('period', 'month')
-        qs = PromoterScore.objects.group_by_period(period)
+        qs = PromoterScore.objects.group_by_period(period, rolling=rolling)
         scores = defaultdict(dict)
         for item in qs:
             score, count, period = item['score'], item['count'], item['period']
