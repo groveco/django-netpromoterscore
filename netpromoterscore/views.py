@@ -54,7 +54,7 @@ class SurveyView(View):
 
 
 class NetPromoterScoreView(View):
-    options = [PeriodOption, RollingOption]
+    options = [PeriodOption]
 
     @method_decorator(staff_member_required)
     def get(self, request):
