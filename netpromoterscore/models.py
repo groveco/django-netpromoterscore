@@ -1,18 +1,14 @@
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from django.conf import settings
-from utils import get_next_month
+from django.db.models import Count
 
 
 class PromoterScoreManager(models.Manager):
-    def rolling(self, month):
-        month = get_next_month(month)
-        scores = self.filter(created_at__lt=month).order_by('-created_at').values_list('user', 'score')
-        return dict(scores)
 
-    def one_month_only(self, month):
-        scores = self.filter(created_at__month=month.month, created_at__year=month.year).values_list('user', 'score')
-        return dict(scores)
+    def group_by_period(self, period, rolling=False):
+        select = {'period': "date_trunc('%s', created_at)" % period}
+        return self.extra(select=select, order_by=['score', 'period']).values('score', 'period').annotate(count=Count('score'))
 
 
 class PromoterScore(models.Model):

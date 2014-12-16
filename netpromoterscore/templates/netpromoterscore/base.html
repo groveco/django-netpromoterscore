@@ -1,14 +1,19 @@
-{% extends 'admin/base_site.html'%}
+{% extends 'admin/change_list.html' %}
 
 {% block title %} Promoter Score {% endblock %}
-
-{% block content%}
-    <link href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet">
-    <div class="container">
-        <div class="starter-template">
-            <div class="table-responsive">
-                <table class="table">
-                    <thead>
+{% block breadcrumbs %}
+    <div class="breadcrumbs">
+        <a href="{% url 'admin:index' %}">Home</a>
+    </div>
+{% endblock %}
+{% block content %}
+    <h1>Net Promoter Score</h1>
+    <div id="content-main">
+        <div class="module filtered" id="changelist">
+            <form id="changelist-form" action="" method="post" novalidate="">
+                <div class="results">
+                    <table id="result_list" style="width: 100%">
+                        <thead>
                         <tr>
                             <th>Month</th>
                             <th title="NPS = % of Promoters - % of Detractors">Net Promoter Score</th>
@@ -17,35 +22,45 @@
                             <th title="Users that answered with score of 7-8">Total Passive</th>
                             <th title="Users that skipped the survey">Total Skipped</th>
                         </tr>
-                    </thead>
-                    <tbody>
-                        {% for nps_info in nps_info_list %}
-                        <tr>
-                            <th>{{ nps_info.label }}</th>
-                            <td>{{ nps_info.score }}</td>
-                            <td>{{ nps_info.promoters }}</td>
-                            <td>{{ nps_info.detractors }}</td>
-                            <td>{{ nps_info.passive }}</td>
-                            <td>{{ nps_info.skipped }}</td>
-                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for period, score in scores %}
+                            <tr class="{% cycle 'row1' 'row2' %}">
+                                <th>{{ period|date:"M j Y" }}</th>
+                                <td>{{ score.score }}</td>
+                                <td>{{ score.promoters }}</td>
+                                <td>{{ score.detractors }}</td>
+                                <td>{{ score.passive }}</td>
+                                <td>{{ score.skipped }}</td>
+                            </tr>
                         {% endfor %}
-                    </tbody>
-                </table>
+                        </tbody>
+                    </table>
+                </div>
+
+            </form>
+
+            <div id="changelist-filter">
+                <h2>Options</h2>
+                {% for option in options %}
+                    <h3>{{ option.title }}</h3>
+                    <ul>
+                        {% for choice in option.get_choices %}
+                            <li {% if choice.selected %} class="selected"{% endif %}>
+                                <a href="{{ choice.query_string }}">{{ choice.display }}</a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endfor %}
             </div>
         </div>
-    {% if rolling %}
-        <a href="{% url 'net-promoter-score'%}?rolling=0" type="button" class="btn btn-primary btn-lg" style="color: #fff">Switch to non-rolling scores</a>
-    {% else %}
-        <a href="{% url 'net-promoter-score'%}?rolling=1" type="button" class="btn btn-primary btn-lg" style="color: #fff">Switch to rolling scores</a>
-    {% endif %}
-    <br>
-<!--    <p>Rolling scores use the most recent promoter scores from users. Rolling scores use scores from the start of collecting up to that month.</p> -->
     </div>
 
     <div id="footer" style="padding-top:20px;">
         <div class="container">
             <p class="text-muted">
-                Powered by <a href="https://www.github.com/epantry/django-netpromoterscore/">django-netpromoterscore</a> from
+                Powered by <a href="https://www.github.com/epantry/django-netpromoterscore/">django-netpromoterscore</a>
+                from
                 <a href="https://www.epantry.com">ePantry</a>.
             </p>
         </div>
