@@ -14,7 +14,7 @@ class PromoterScoreManager(models.Manager):
 class PromoterScore(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL)
     created_at = models.DateTimeField(auto_now_add=True)
-    score = models.IntegerField(null=True, blank=True, validators=[MinValueValidator(0), MaxValueValidator(10)])
+    score = models.IntegerField(default=-1, validators=[MinValueValidator(-1), MaxValueValidator(10)])
     reason = models.TextField(null=True, blank=True)
 
     objects = PromoterScoreManager()
