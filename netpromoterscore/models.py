@@ -1,14 +1,35 @@
 from django.core.validators import MinValueValidator, MaxValueValidator
-from django.db import models
+from django.db import models, connection
 from django.conf import settings
 from django.db.models import Count
+from netpromoterscore.app_settings import PROMOTERSCORE_USER_RANGES
 
 
 class PromoterScoreManager(models.Manager):
 
     def group_by_period(self, period, rolling=False):
-        select = {'period': "date_trunc('%s', created_at)" % period}
-        return self.extra(select=select, order_by=['score', 'period']).values('score', 'period').annotate(count=Count('score'))
+        ranges = ' UNION ALL '.join(
+            [
+            'SELECT %s minRange, %s maxRange, \'%s\' "range"' % (values[0], values[-1], range)
+            for range, values in PROMOTERSCORE_USER_RANGES.iteritems()
+            ]
+        )
+        query = '''
+                    SELECT date_trunc('{0}', created_at), ranges."range", count(nps.score) as "number of occurences"
+                    FROM ({1}) as ranges
+                    LEFT JOIN netpromoterscore_promoterscore AS nps ON score BETWEEN ranges.minRange AND ranges.maxRange
+                    GROUP BY
+                        ranges.range,
+                        date_trunc('{0}', created_at)
+                    ORDER BY
+                        date_trunc('{0}', created_at)
+                '''\
+        .format(period, ranges)
+
+        cursor = connection.cursor()
+        cursor.execute(query)
+        return cursor.fetchall()
+
 
 
 class PromoterScore(models.Model):

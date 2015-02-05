@@ -67,10 +67,8 @@ class NetPromoterScoreView(View):
         qs = PromoterScore.objects.group_by_period(period, rolling=rolling)
         scores = defaultdict(dict)
         for item in qs:
-            score, count, period = item['score'], item['count'], item['period']
-            user_range = get_range_name_by_score(score)
-            user_range_score = scores[period].get(user_range, 0)
-            scores[period][user_range] = user_range_score + count
+            period, range, score = item
+            scores[period][range] = score
         sort_scores = sorted(scores.iteritems(), key=lambda key_value: key_value[0], reverse=True)
         for _, sc in sort_scores:
             sc['score'] = count_score(sc)
