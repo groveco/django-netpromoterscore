@@ -10,7 +10,7 @@ from .models import PromoterScore
 from .forms import PromoterScoreForm
 from .decorators import login_required
 from .options import PeriodOption, RollingOption
-from .utils import count_score, get_range_name_by_score
+from .utils import count_score
 
 
 class SurveyView(View):
@@ -64,7 +64,7 @@ class NetPromoterScoreView(View):
     def get_context_data(self, request):
         rolling = RollingOption(request.GET).chosen_value == 'yes'
         period = PeriodOption(request.GET).chosen_value
-        qs = PromoterScore.objects.group_by_period(period, rolling=rolling)
+        qs = PromoterScore.objects.group_by_period(period)
         scores = defaultdict(dict)
         for item in qs:
             period, range, score = item

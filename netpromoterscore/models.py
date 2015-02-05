@@ -1,13 +1,12 @@
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models, connection
 from django.conf import settings
-from django.db.models import Count
 from netpromoterscore.app_settings import PROMOTERSCORE_USER_RANGES
 
 
 class PromoterScoreManager(models.Manager):
 
-    def group_by_period(self, period, rolling=False):
+    def group_by_period(self, period):
         ranges = ' UNION ALL '.join(
             [
             'SELECT %s minRange, %s maxRange, \'%s\' "range"' % (values[0], values[-1], range)
