@@ -32,6 +32,8 @@ class SurveyView(View):
         data = json.loads(request.body)
         data['user'] = request.user.id
         pk = data.pop('id', None)
+        if 'score' not in data:
+            data['score'] = -1
 
         if pk:
             instance = get_object_or_404(PromoterScore, pk=pk)
